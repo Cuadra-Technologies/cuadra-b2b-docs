@@ -1,0 +1,311 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Servicio de Registro de Clientes",
+    "x-logo": {
+      "url": "./logo.svg"
+    },
+    "description": {
+      "$ref": "./overview.md"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://tarcresa-api-dev.cuadra.la/api/v1",
+      "description": "Desarrollo"
+    }
+  ],
+  "tags":[
+    {
+      "name": "Creación de usuario",
+      "description": {
+        "$ref": "./registry_guide.md"
+      },
+      "x-traitTag": true
+    },
+    {
+      "name": "Catalogo de parametros",
+      "description": {
+        "$ref": "./data_points_catalog.md"
+      },
+      "x-traitTag": true
+    }
+  ],
+  "x-tagGroups":[
+    {
+      "name": "Guides",
+      "description": "descripción",
+      "tags": [
+        "Creación de usuario", "Catalogo de parametros"
+      ]
+    },
+    {
+      "name": "Api Reference",
+      "tags": [
+        "Clients"
+      ]
+    }
+  ],
+  "paths": {
+    "/external/client/registry": {
+      "post": {
+        "tags":["Clients"],
+        "summary": "Registrar un cliente",
+        "description": "Registra un nuevo cliente proporcionando el CUI y otros datos opcionales.",
+        "operationId": "registerClient",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "cui",
+                  "first_name",
+                  "last_name",
+                  "phone",
+                  "product_key",
+                  "product_id",
+                  "origin",
+                  "client_id",
+                  "data_points"
+                ],
+                "properties": {
+                  "cui": {
+                    "type": "string",
+                    "description": "Código Único de Identificación del cliente.",
+                    "example": "2380033370713"
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "description": "Primer nombre del cliente.",
+                    "example": "Juan"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "description": "Apellido del cliente.",
+                    "example": "Pérez"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Número de teléfono del cliente.",
+                    "example": "555-1234"
+                  },
+                  "product_key": {
+                    "type": "string",
+                    "description": "Clave del producto asociado al cliente.",
+                    "example": "ABC123"
+                  },
+                  "product_id": {
+                    "type": "string",
+                    "description": "Identificación del producto asociado.",
+                    "example": "98765"
+                  },
+                  "origin": {
+                    "type": "string",
+                    "description": "Origen del cliente.",
+                    "example": "website"
+                  },
+                  "client_id": {
+                    "type": "string",
+                    "description": "Identificación única del cliente.",
+                    "example": "CL123456"
+                  },
+                  "data_points": {
+                    "type": "array",
+                    "description": "Datos adicionales del cliente en formato clave-valor.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string",
+                          "description": "Nombre del dato.",
+                          "example": "name"
+                        },
+                        "value": {
+                          "type": "string",
+                          "description": "Valor del dato.",
+                          "example": "Juan"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registro exitoso del cliente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "header": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "description": "Título de la respuesta.",
+                          "example": "Registro Exitoso"
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "Mensaje explicativo del resultado.",
+                          "example": "El cliente ha sido registrado correctamente."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Tipo de respuesta.",
+                          "example": "success"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "Código de la operación.",
+                          "example": "200"
+                        },
+                        "token": {
+                          "type": "string",
+                          "description": "Token de autenticación si es aplicable.",
+                          "example": "jwt_token_12345"
+                        },
+                        "event_id": {
+                          "type": "string",
+                          "description": "Identificación del evento.",
+                          "example": "event_67890"
+                        }
+                      }
+                    },
+                    "content": {
+                      "type": "object",
+                      "properties": {
+                        "client_id": {
+                          "type": "string",
+                          "description": "Identificador único del cliente registrado.",
+                          "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en los datos proporcionados.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "header": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "description": "Título de la respuesta.",
+                          "example": "Solicitud Incorrecta"
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "Mensaje explicativo del error.",
+                          "example": "Los datos proporcionados no son válidos."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Tipo de respuesta.",
+                          "example": "error"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "Código de la operación.",
+                          "example": "400"
+                        },
+                        "token": {
+                          "type": "string",
+                          "description": "Token de autenticación si es aplicable.",
+                          "example": "jwt_token_12345"
+                        },
+                        "event_id": {
+                          "type": "string",
+                          "description": "Identificación del evento.",
+                          "example": "event_67890"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Error de autenticación.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "header": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "description": "Título de la respuesta.",
+                          "example": "No Autorizado"
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "Mensaje explicativo del error.",
+                          "example": "El token de autenticación es inválido o ha expirado."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Tipo de respuesta.",
+                          "example": "error"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "Código de la operación.",
+                          "example": "401"
+                        },
+                        "token": {
+                          "type": "string",
+                          "description": "Token de autenticación si es aplicable.",
+                          "example": "jwt_token_12345"
+                        },
+                        "event_id": {
+                          "type": "string",
+                          "description": "Identificación del evento.",
+                          "example": "event_67890"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Token": {
+        "description": "Token de autenticación",
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
+
