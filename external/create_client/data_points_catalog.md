@@ -4,17 +4,27 @@ Este es un catálogo de los parámetros que se recibirán en el servicio de [cre
 
 | **Data Point Key**                 | **Name**                                                  | **Regex**                                | **Min Char** | **Max Char** | **Required** |
 |------------------------------------|-----------------------------------------------------------|------------------------------------------|--------------|--------------|--------------|
+| id_tipo_documento_identificacion   | Tipo de Documento de Identificación                       |                                          | 1            | 1000         | TRUE         |
 | tipo_documento_identificacion      | Tipo de Documento de Identificación                       |                                          | 0            | 1000         | TRUE         |
 | numero_identificacion              | Número de Identificación                                  |                                          | 0            | 1000         | TRUE         |
-| nombre_completo                    | Nombre Completo                                           |                                          | 2            | 250          | TRUE         |
+| primer_nombre                      | Primer Nombre                                             |                                          | 2            | 250          | TRUE         |
+| segundo_nombre                     | Segundo Nombre                                            |                                          | 2            | 250          | FALSE        |
+| primer_apellido                    | Primer Apellido                                           |                                          | 2            | 250          | TRUE         |
+| segundo_apellido                   | Segundo Apellido                                          |                                          | 2            | 250          | FALSE        |
+| apellido_casada                    | Apellido Casada                                           |                                          | 2            | 250          | FALSE        |
 | nit                                | NIT                                                       |                                          | 8            | 12           | TRUE         |
 | numero_celular                     | Número de Celular                                         | `^(?:\d{3}[-\s]?)?[236457]\d{7}$`        | 8            | 12           | TRUE         |
 | telefono_linea_fija                | Teléfono principal                                        | `^(?:\d{3}[-\s]?)?[236457]\d{7}$`        | 8            | 12           | TRUE         |
 | correo                             | Correo Eléctronico                                        | `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$` | 10  | 250          | FALSE        |
 | direccion                          | Dirección                                                 |                                          | 5            | 1000         | TRUE         |
+| id_pais                            | Id del País                                               |                                          | 1            | 1000         | TRUE         |
+| pais                               | País                                                      |                                          | 1            | 1000         | TRUE         |
+| id_dueño_departamento              | Id Departamento                                           |                                          | 1            | 1000         | TRUE         |
 | dueño_departamento                 | Departamento                                              |                                          | 0            | 1000         | TRUE         |
+| id_dueño_municipio                 | Id Municipio                                              |                                          | 1            | 1000         | TRUE         |
 | dueño_municipio                    | Municipio                                                 |                                          | 0            | 1000         | TRUE         |
-| dueño_zona                         | Zona/Colonia                                              |                                          | 0            | 100          | TRUE         |
+| dueño_zona                         | Zona                                                      |                                          | 0            | 100          | TRUE         |
+| dueño_colonia                      | Colonia                                                   |                                          | 0            | 100          | TRUE         |
 | profesion                          | Profesion u Oficio                                        |                                          | 2            | 250          | TRUE         |
 | fuentes_ingreso                    | Fuentes de Ingreso                                        |                                          | 0            | 1000         | TRUE         |
 | otras_fuentes_ingreso              | Otras Fuentes de Ingreso                                  |                                          | 0            | 1000         | FALSE        |
@@ -64,13 +74,29 @@ curl --location 'https://api.example.com/api/v1/external/client/registry' \
             "key": "tipo_documento_identificacion", 
             "value": "DPI"
         },
+            {
+            "key": "id_tipo_documento_identificacion", 
+            "value": "2"
+        },
         {
             "key": "numero_identificacion", 
             "value": "2409046182101"
         },
         {
-            "key": "nombre_completo", 
-            "value": "Juan Luis Peréz Gómez"
+            "key": "primer_nombre", 
+            "value": "Juan"
+        },
+        {
+            "key": "segundo_nombre", 
+            "value": "Luis"
+        },
+        {
+            "key": "primer_apellido", 
+            "value": "Perez"
+        },
+        {
+            "key": "segundo_apellido", 
+            "value": "Perez"
         },
         {
             "key": "nit", 
@@ -92,9 +118,25 @@ curl --location 'https://api.example.com/api/v1/external/client/registry' \
             "key": "direccion", 
             "value": "4a Calle 12-34 Zona 10"
         },
+         {
+            "key": "id_pais", 
+            "value": "1"
+        },
+        {
+            "key": "pais", 
+            "value": "Guatemala"
+        },
+         {
+            "key": "id_dueño_departamento", 
+            "value": "100"
+        },
         {
             "key": "dueño_departamento", 
             "value": "Guatemala"
+        },
+        {
+            "key": "id_dueño_municipio", 
+            "value": "1"
         },
         {
             "key": "dueño_municipio", 
@@ -103,6 +145,10 @@ curl --location 'https://api.example.com/api/v1/external/client/registry' \
         {
             "key": "dueño_zona", 
             "value": "Zona 10"
+        },
+         {
+            "key": "dueño_colonia", 
+            "value": "Los Balcones"
         },
         {
             "key": "profesion", 
