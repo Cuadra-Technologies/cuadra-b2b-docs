@@ -1,0 +1,233 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Registro de resultados de llamada - Asistente CX",
+    "version": "0.1.0",
+    "description": {
+      "$ref": "./overview.md"
+    },
+    "x-logo": {
+      "url": "./logo.svg"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.cuadra.dev/api/v1",
+      "description": "Desarrollo"
+    },
+    {
+      "url": "https://api.cuadra.la/api/v1",
+      "description": "Produccion"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Resultados de llamada",
+      "description": {
+        "$ref": "./voice_result_guide.md"
+      },
+      "x-traitTag": true
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Guides",
+      "description": "descripcion",
+      "tags": [
+        "Resultados de llamada"
+      ]
+    },
+    {
+      "name": "Api Reference",
+      "tags": [
+        "AssistantCX"
+      ]
+    }
+  ],
+  "paths": {
+    "/external/assistant-cx/calls": {
+      "post": {
+        "tags": [
+          "AssistantCX"
+        ],
+        "summary": "Registrar resultado de llamada",
+        "description": "Registra el resultado de una llamada ejecutada por Asistente CX.",
+        "operationId": "registerCallResult",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "conversation_id",
+                  "transcript_path",
+                  "audio_path"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "success",
+                      "failed"
+                    ],
+                    "description": "Resultado de la llamada. Puede ser 'success' si fue exitosa o 'failed' si falló."
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "Incompleta",
+                      "Intentos erroneos",
+                      "Llamada no contestada",
+                      "Numero equivocado",
+                      "No hay match respecto parametros iniciales"
+                    ],
+                    "description": "Motivo específico del fallo. Solo se requiere si el status es 'failed'."
+                  },
+                  "attempts": {
+                    "type": "integer",
+                    "description": "Número de intentos realizados para completar la llamada."
+                  },
+                  "conversation_id": {
+                    "type": "string",
+                    "description": "Identificador único de la llamada proporcionado por el proveedor externo."
+                  },
+                  "transcript_path": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Ruta al archivo de transcripción de la llamada (por ejemplo, en S3)."
+                  },
+                  "audio_path": {
+                    "type": "string",
+                    "format": "path",
+                    "description": "Ruta al archivo de audio de la llamada (por ejemplo, en S3)."
+                  },
+                  "detected_gender": {
+                    "type": "string",
+                    "enum": [
+                      "male",
+                      "female",
+                      "undefined"
+                    ],
+                    "description": "Género detectado en la llamada, si aplica. Puede ser 'male', 'female' o 'undefined'."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registro exitoso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "header": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "example": "Registro Exitoso"
+                        },
+                        "message": {
+                          "type": "string",
+                          "example": "Llamada registrada exitosamente."
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "success"
+                        },
+                        "code": {
+                          "type": "string",
+                          "example": "000"
+                        },
+                        "event_id": {
+                          "type": "string",
+                          "example": "event_67890"
+                        }
+                      }
+                    },
+                    "content": {
+                      "type": "object",
+                      "properties": {
+                        "transaction_id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en validacion del payload"
+          },
+          "401": {
+            "description": "No autorizado"
+          },
+          "422": {
+            "description": "Error de validación.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "header": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "example": "Error"
+                        },
+                        "message": {
+                          "type": "string",
+                          "example": "Campo faltante: reason"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "error"
+                        },
+                        "code": {
+                          "type": "string",
+                          "example": "422"
+                        },
+                        "event_id": {
+                          "type": "string",
+                          "example": "event_67890"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        },
+        "security": [
+          {
+            "Token": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Token": {
+        "description": "Token de autenticacion",
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
