@@ -2,6 +2,7 @@
 set -e
 
 REDOCLY_IMAGE="redocly/cli"
+CACHE_ROOT="public"
 OUTPUT_ROOT="public/docs"
 ASSETS_ROOT="assets"
 ZIP_DIR="artifacts"
@@ -28,7 +29,7 @@ done
 echo "info: Generating documentation for all .openapi.json specs..."
 
 echo "info: Cleaning cache..."
-find "$OUTPUT_ROOT" -mindepth 1 -type d -exec rm -rf {} +
+find "$CACHE_ROOT" -mindepth 1 -type d -exec rm -rf {} +
 
 mkdir -p "$OUTPUT_ROOT"
 
