@@ -129,10 +129,20 @@
                         "description": "Direcci\u00f3n declarada por el cliente.",
                         "example": "3era calle 2da avenida"
                       },
-                      "born_year": {
+                      "age": {
                         "type": "string",
                         "description": "A\u00f1o de nacimiento que el cliente indic\u00f3 (formato: YYYY).",
                         "example": "1993"
+                      },
+                      "id_number": {
+                        "type": "string",
+                        "description": "Documento de identificación nacional (CUI).",
+                        "example": "2390033370713"
+                      },
+                      "ocupation": {
+                        "type": "string",
+                        "description": "Ocupación laboral de la persona.",
+                        "example": "Albañil"
                       }
                     }
                   }

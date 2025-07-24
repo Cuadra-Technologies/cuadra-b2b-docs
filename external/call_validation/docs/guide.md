@@ -36,7 +36,9 @@ Este objeto contiene la información **declarada verbalmente por el cliente** du
 |-----------------------------|----------|--------|----------------------------------------------------------------------------|
 | `declared_data.average_income` | No       | string | Ingreso promedio declarado por el cliente durante la llamada.              |
 | `declared_data.address`        | No       | string | Dirección declarada por el cliente.                                        |
-| `declared_data.born_year`     | No       | string | Año de nacimiento que el cliente indicó (formato: YYYY).                   |
+| `declared_data.age`     | No       | string | Año de nacimiento que el cliente indicó (formato: YYYY).                   |
+| `declared_data.id_number`     | No       | string | Documento de identificación nacional (CUI).                   |
+| `declared_data.ocupation`     | No       | string | Ocupación de la persona.                   |
 
 ## Comportamiento del endpoint
 
