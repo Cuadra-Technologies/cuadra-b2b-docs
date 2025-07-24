@@ -1,31 +1,24 @@
-# Build artifacts
-/public/docs/*
-!/public/README.md
+# Ignore all generated documentation
+external/**/public/docs/
+external/**/artifacts/
+external/**/docs_bundle.zip
 
-# Exported ZIPs
-/artifacts/
-/*.zip
+# Allow committed READMEs
+!external/**/public/README.md
+!external/**/README.md
 
-# Local assets cache (if generated)
+# Ignore temp/editor/system files
 *.log
 *.tmp
-
-# System files
 .DS_Store
 Thumbs.db
+*.swp
 
-# Node or Python environments (if used)
+# Ignore Redocly or build-related cache if it appears
+.redocly/
+external/**/.redocly/
+
+# Optional: node or Python
 node_modules/
 venv/
 .env
-
-# Docker
-**/.docker/
-
-# Optional: ignore OpenAPI caches if Redocly is used locally
-.redocly/
-
-# Optional: editor/project files
-.idea/
-.vscode/
-*.swp

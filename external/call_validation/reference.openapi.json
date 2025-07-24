@@ -4,10 +4,10 @@
     "title": "Registro de resultados de llamada - Asistente CX",
     "version": "0.1.0",
     "description": {
-      "$ref": "./overview.md"
+      "$ref": "./docs/overview.md"
     },
     "x-logo": {
-      "url": "./logo.svg"
+      "url": "./assets/logo.svg"
     }
   },
   "servers": [
@@ -24,7 +24,7 @@
     {
       "name": "Resultados de llamada",
       "description": {
-        "$ref": "./voice_result_guide.md"
+        "$ref": "./docs/guide.md"
       },
       "x-traitTag": true
     }
