@@ -16,17 +16,27 @@ Los resultados de estas llamadas deben almacenarse para trazabilidad, análisis 
 
 ## Campos esperados en la solicitud
 
-| Property          | Required    | Type         | Descripción                                                              |
-| ----------------- | ----------- | ------------ | ------------------------------------------------------------------------ |
-| `status`          | Yes         | string       | Resultado de la llamada (`success` o `failed`).                          |
-| `reason`          | Conditional | string       | Solo si la llamada fue fallida. Motivo específico del fallo.             |
-| `attempts`        | No          | integer      | Número de intentos realizados si la llamada falló.                       |
-| `conversation_id` | Yes         | string       | Identificador único de la llamada.                                       |
-| `transcript_path` | Yes         | string (URI) | Ruta al archivo de transcripción en S3.                                  |
-| `audio_path`      | Yes         | string (URI) | Ruta al archivo de audio en S3.                                          |
-| `detected_gender` | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`. |
+| Property              | Required    | Type         | Descripción                                                                 |
+|-----------------------|-------------|--------------|------------------------------------------------------------------------------|
+| `status`              | Si         | string       | Resultado de la llamada (`success` o `failed`).                             |
+| `reason`              | Condicional| string       | Solo si la llamada fue fallida. Motivo específico del fallo.                |
+| `attempts`            | No          | integer      | Número de intentos realizados si la llamada falló.                          |
+| `conversation_id`     | Si         | string       | Identificador único de la llamada.                                          |
+| `transcript_path`     | Si         | string (URI) | Ruta al archivo de transcripción en S3.                                     |
+| `audio_path`          | Si         | string (URI) | Ruta al archivo de audio en S3.                                             |
+| `detected_gender`     | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`.             |
 
 > **Nota:** Los campos `transcript_path` y `audio_path` deben contener URIs válidas. Se recomienda el formato `/{folder}/{key}`, ej. `transcripts/3fa85f6457174562b3fc2c963f66afa6.txt`.
+
+### Objeto anidado: `declared_data`
+
+Este objeto contiene la información **declarada verbalmente por el cliente** durante la llamada.
+
+| Property                    | Required | Type   | Descripción                                                                |
+|-----------------------------|----------|--------|----------------------------------------------------------------------------|
+| `declared_data.average_income` | No       | string | Ingreso promedio declarado por el cliente durante la llamada.              |
+| `declared_data.address`        | No       | string | Dirección declarada por el cliente.                                        |
+| `declared_data.born_year`     | No       | string | Año de nacimiento que el cliente indicó (formato: YYYY).                   |
 
 ## Comportamiento del endpoint
 

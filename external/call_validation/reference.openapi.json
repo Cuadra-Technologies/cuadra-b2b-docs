@@ -72,7 +72,7 @@
                       "success",
                       "failed"
                     ],
-                    "description": "Resultado de la llamada. Puede ser 'success' si fue exitosa o 'failed' si falló."
+                    "description": "Resultado de la llamada. Puede ser 'success' si fue exitosa o 'failed' si fall\u00f3."
                   },
                   "reason": {
                     "type": "string",
@@ -83,24 +83,27 @@
                       "Numero equivocado",
                       "No hay match respecto parametros iniciales"
                     ],
-                    "description": "Motivo específico del fallo. Solo se requiere si el status es 'failed'."
+                    "description": "Motivo espec\u00edfico del fallo. Solo se requiere si el status es 'failed'."
                   },
                   "attempts": {
                     "type": "integer",
-                    "description": "Número de intentos realizados para completar la llamada."
+                    "description": "N\u00famero de intentos realizados para completar la llamada."
                   },
                   "conversation_id": {
                     "type": "string",
-                    "description": "Identificador único de la llamada proporcionado por el proveedor externo."
+                    "example": "3fa85f6457174562b3fc2c963f66afa6",
+                    "description": "Identificador \u00fanico de la llamada proporcionado por el proveedor externo."
                   },
                   "transcript_path": {
                     "type": "string",
                     "format": "path",
-                    "description": "Ruta al archivo de transcripción de la llamada (por ejemplo, en S3)."
+                    "example": "/transcripts/3fa85f6457174562b3fc2c963f66afa6.txt",
+                    "description": "Ruta al archivo de transcripci\u00f3n de la llamada (por ejemplo, en S3)."
                   },
                   "audio_path": {
                     "type": "string",
                     "format": "path",
+                    "example": "/audios/3fa85f6457174562b3fc2c963f66afa6.mp3",
                     "description": "Ruta al archivo de audio de la llamada (por ejemplo, en S3)."
                   },
                   "detected_gender": {
@@ -110,7 +113,28 @@
                       "female",
                       "undefined"
                     ],
-                    "description": "Género detectado en la llamada, si aplica. Puede ser 'male', 'female' o 'undefined'."
+                    "description": "G\u00e9nero detectado en la llamada, si aplica. Puede ser 'male', 'female' o 'undefined'."
+                  },
+                  "declared_data": {
+                    "type": "object",
+                    "description": "Datos que el cliente declar\u00f3 verbalmente durante la llamada.",
+                    "properties": {
+                      "average_income": {
+                        "type": "string",
+                        "description": "Ingreso promedio declarado por el cliente durante la llamada.",
+                        "example": "3000"
+                      },
+                      "address": {
+                        "type": "string",
+                        "description": "Direcci\u00f3n declarada por el cliente.",
+                        "example": "3era calle 2da avenida"
+                      },
+                      "born_year": {
+                        "type": "string",
+                        "description": "A\u00f1o de nacimiento que el cliente indic\u00f3 (formato: YYYY).",
+                        "example": "1993"
+                      }
+                    }
                   }
                 }
               }
@@ -172,7 +196,7 @@
             "description": "No autorizado"
           },
           "422": {
-            "description": "Error de validación.",
+            "description": "Error de validaci\u00f3n.",
             "content": {
               "application/json": {
                 "schema": {
