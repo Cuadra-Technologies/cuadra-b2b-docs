@@ -1,0 +1,31 @@
+# Build artifacts
+/public/docs/*
+!/public/README.md
+
+# Exported ZIPs
+/artifacts/
+/*.zip
+
+# Local assets cache (if generated)
+*.log
+*.tmp
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Node or Python environments (if used)
+node_modules/
+venv/
+.env
+
+# Docker
+**/.docker/
+
+# Optional: ignore OpenAPI caches if Redocly is used locally
+.redocly/
+
+# Optional: editor/project files
+.idea/
+.vscode/
+*.swp
