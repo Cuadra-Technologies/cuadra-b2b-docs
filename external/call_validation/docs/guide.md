@@ -1,4 +1,4 @@
-Esta guía describe el uso y finalidad del endpoint `/integrations/assistant-cx/calls`, diseñado para recibir los resultados de llamadas ejecutadas por proveedores externos (por ejemplo, el servicio Asistente CX), durante el proceso de validación de crédito.
+Esta guía describe el uso y finalidad del endpoint `/external/assistant-cx/calls`, diseñado para recibir los resultados de llamadas ejecutadas por proveedores externos (por ejemplo, el servicio Asistente CX), durante el proceso de validación de crédito.
 
 ## Objetivo
 
