@@ -1,50 +1,99 @@
-Esta guía describe el uso y finalidad del endpoint `/external/assistant-cx/calls`, diseñado para recibir los resultados de llamadas ejecutadas por proveedores externos (por ejemplo, el servicio Asistente CX), durante el proceso de validación de crédito.
+# Guía de uso – Resultados de llamada Asistente CX
+
+Esta guía describe el uso y finalidad de los endpoints disponibles para registrar los resultados de llamadas realizadas durante el proceso de validación de crédito, ya sea al titular o a una referencia personal.
+
+---
+
+## Endpoints disponibles
+
+| Endpoint                                 | Finalidad                                                    |
+| ---------------------------------------- | ------------------------------------------------------------ |
+| `/external/assistant-cx/calls`           | Registrar resultado de llamada al titular.                   |
+| `/external/assistant-cx/calls-reference` | Registrar resultado de llamada a una referencia del titular. |
+
+---
 
 ## Objetivo
 
-Permitir que el sistema Cuadra reciba y almacene la información resultante de llamadas realizadas a titulares o referencias, con el fin de respaldar decisiones informadas en procesos automáticos o manuales de aprobación o rechazo crediticio.
+Permitir que el sistema Cuadra reciba y almacene la información resultante de llamadas realizadas a **titulares** o **referencias**, con el fin de respaldar decisiones informadas en procesos automáticos o manuales de aprobación o rechazo crediticio.
+
+---
 
 ## Contexto
 
-Durante la validación de aplicaciones de crédito, se realiza una llamada automática al titular o referencias del solicitante. Esta llamada puede:
+Durante la validación de aplicaciones de crédito, se realiza una llamada automática al titular o a sus referencias. Estas llamadas pueden:
 
 * Confirmar datos clave.
 * Validar coincidencia de información.
 * Detectar anomalías o inconsistencias.
 
-Los resultados de estas llamadas deben almacenarse para trazabilidad, análisis y soporte de decisiones, tanto automáticas como manuales.
+Los resultados deben almacenarse para trazabilidad, análisis y soporte de decisiones.
 
-## Campos esperados en la solicitud
+---
 
-| Property              | Required    | Type         | Descripción                                                                 |
-|-----------------------|-------------|--------------|------------------------------------------------------------------------------|
-| `status`              | Si         | string       | Resultado de la llamada (`success` o `failed`).                             |
-| `reason`              | Condicional| string       | Solo si la llamada fue fallida. Motivo específico del fallo.                |
-| `attempts`            | No          | integer      | Número de intentos realizados si la llamada falló.                          |
-| `conversation_id`     | Si         | string       | Identificador único de la llamada.                                          |
-| `transcript_path`     | Si         | string (URI) | Ruta al archivo de transcripción en S3.                                     |
-| `audio_path`          | Si         | string (URI) | Ruta al archivo de audio en S3.                                             |
-| `detected_gender`     | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`.             |
+## 1. Registro de llamada al titular (`/external/assistant-cx/calls`)
 
-> **Nota:** Los campos `transcript_path` y `audio_path` deben contener URIs válidas. Se recomienda el formato `/{folder}/{key}`, ej. `transcripts/3fa85f6457174562b3fc2c963f66afa6.txt`.
+### Campos esperados en la solicitud
 
-### Objeto anidado: `declared_data`
+| Property          | Required    | Type         | Descripción                                                     |
+| ----------------- | ----------- | ------------ | --------------------------------------------------------------- |
+| `status`          | Sí          | string       | Resultado de la llamada (`success` o `failed`).                 |
+| `reason`          | Condicional | string       | Solo si la llamada fue fallida. Motivo específico del fallo.    |
+| `attempts`        | No          | integer      | Número de intentos realizados si la llamada falló.              |
+| `conversation_id` | Sí          | string       | Identificador único de la llamada.                              |
+| `transcript_path` | Sí          | string (URI) | Ruta al archivo de transcripción en S3.                         |
+| `audio_path`      | Sí          | string (URI) | Ruta al archivo de audio en S3.                                 |
+| `detected_gender` | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`. |
 
-Este objeto contiene la información **declarada verbalmente por el cliente** durante la llamada.
+> **Nota:** Se recomienda el formato `/{folder}/{key}`, por ejemplo:
+> `transcripts/3fa85f6457174562b3fc2c963f66afa6.txt`
 
-| Property                    | Required | Type   | Descripción                                                                |
-|-----------------------------|----------|--------|----------------------------------------------------------------------------|
-| `declared_data.average_income` | No       | string | Ingreso promedio declarado por el cliente durante la llamada.              |
-| `declared_data.address`        | No       | string | Dirección declarada por el cliente.                                        |
-| `declared_data.age`     | No       | string | Año de nacimiento que el cliente indicó (formato: YYYY).                   |
-| `declared_data.id_number`     | No       | string | Documento de identificación nacional (CUI).                   |
-| `declared_data.ocupation`     | No       | string | Ocupación de la persona.                   |
+#### Objeto anidado: `declared_data`
 
-## Comportamiento del endpoint
+Contiene información **declarada verbalmente por el cliente**:
 
-* Si `status` es `failed` pero no se proporciona `reason`, el sistema responderá con error `422`.
-* Si `transcript_path` o `audio_path` no son rutas válidas (o los archivos no existen), se responderá con rechazo explícito.
-* Si todos los datos son válidos, la información se almacena y el sistema responde con un objeto de confirmación.
+| Property                       | Required | Type   | Descripción                             |
+| ------------------------------ | -------- | ------ | --------------------------------------- |
+| `declared_data.average_income` | No       | string | Ingreso promedio declarado.             |
+| `declared_data.address`        | No       | string | Dirección declarada.                    |
+| `declared_data.age`            | No       | string | Año de nacimiento (formato: YYYY).      |
+| `declared_data.id_number`      | No       | string | CUI u otro documento de identificación. |
+| `declared_data.ocupation`      | No       | string | Ocupación laboral declarada.            |
+
+---
+
+## 2. Registro de llamada a referencia (`/external/assistant-cx/calls-reference`)
+
+### Campos esperados en la solicitud
+
+| Property          | Required    | Type         | Descripción                                                     |
+| ----------------- | ----------- | ------------ | --------------------------------------------------------------- |
+| `status`          | Sí          | string       | Resultado de la llamada (`success` o `failed`).                 |
+| `reason`          | Condicional | string       | Solo si la llamada fue fallida. Motivo específico del fallo.    |
+| `attempts`        | No          | integer      | Número de intentos realizados si la llamada falló.              |
+| `conversation_id` | Sí          | string       | Identificador único de la llamada.                              |
+| `transcript_path` | Sí          | string (URI) | Ruta al archivo de transcripción en S3.                         |
+| `audio_path`      | Sí          | string (URI) | Ruta al archivo de audio en S3.                                 |
+| `detected_gender` | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`. |
+
+#### Objeto anidado: `declared_data`
+
+Contiene respuestas de la referencia respecto al titular:
+
+| Property                          | Required | Type    | Descripción                             |
+| --------------------------------- | -------- | ------- | --------------------------------------- |
+| `declared_data.knows_holder`      | No       | boolean | Indica si la persona conoce al titular. |
+| `declared_data.recommends_holder` | No       | boolean | Indica si recomienda al titular.        |
+
+---
+
+## Comportamiento general de los endpoints
+
+* Si `status` es `failed` y no se proporciona `reason`, se responderá con `422`.
+* Si los paths no son válidos o no existen los archivos, se rechazará la solicitud.
+* Si los datos son válidos, se almacenan y se responde con un mensaje de éxito.
+
+---
 
 ## Respuesta esperada
 
@@ -63,6 +112,8 @@ Este objeto contiene la información **declarada verbalmente por el cliente** du
 }
 ```
 
+---
+
 ## Ejemplo de error
 
 ```json
@@ -77,3 +128,4 @@ Este objeto contiene la información **declarada verbalmente por el cliente** du
 }
 ```
 
+---
