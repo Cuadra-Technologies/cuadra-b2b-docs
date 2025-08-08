@@ -31,19 +31,19 @@ Los resultados deben almacenarse para trazabilidad, análisis y soporte de decis
 
 ---
 
-## 1. Registro de llamada al titular (`/external/assistant-cx/calls`)
+## 1. Registro de llamada al titular (/external/assistant-cx/calls)
 
 ### Campos esperados en la solicitud
 
-| Property          | Required    | Type         | Descripción                                                     |
-| ----------------- | ----------- | ------------ | --------------------------------------------------------------- |
-| `status`          | Sí          | string       | Resultado de la llamada (`success` o `failed`).                 |
-| `reason`          | Condicional | string       | Solo si la llamada fue fallida. Motivo específico del fallo.    |
-| `attempts`        | No          | integer      | Número de intentos realizados si la llamada falló.              |
-| `conversation_id` | Sí          | string       | Identificador único de la llamada.                              |
-| `transcript_path` | Sí          | string (URI) | Ruta al archivo de transcripción en S3.                         |
-| `audio_path`      | Sí          | string (URI) | Ruta al archivo de audio en S3.                                 |
-| `detected_gender` | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`. |
+| Property          | Required    | Type         | Descripción                                                                                     |
+| ----------------- | ----------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| `status`          | Sí          | string       | Resultado general de la llamada. Es failed si hubo un error técnico o el contacto no respondió. Es success si la llamada fue completada, aunque pueden existir observaciones o problemas dentro del flujo.                                                 |
+| `reason`          | Condicional | enum string  | Catálogo de posibles problemas detectados en la llamada. Ver tabla de tipificación de motivos para los valores posibles. |
+| `attempts`        | No          | integer      | Número de intentos realizados si la llamada falló.                                              |
+| `conversation_id` | Sí          | string       | Identificador único de la llamada.                                                              |
+| `transcript_path` | Sí          | string (URI) | Ruta al archivo de transcripción en S3.                                                         |
+| `audio_path`      | Sí          | string (URI) | Ruta al archivo de audio en S3.                                                                 |
+| `detected_gender` | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`.                                 |
 
 > **Nota:** Se recomienda el formato `/{folder}/{key}`, por ejemplo:
 > `transcripts/3fa85f6457174562b3fc2c963f66afa6.txt`
@@ -62,19 +62,19 @@ Contiene información **declarada verbalmente por el cliente**:
 
 ---
 
-## 2. Registro de llamada a referencia (`/external/assistant-cx/calls-reference`)
+## 2. Registro de llamada a referencia (/external/assistant-cx/calls-reference)
 
 ### Campos esperados en la solicitud
 
-| Property          | Required    | Type         | Descripción                                                     |
-| ----------------- | ----------- | ------------ | --------------------------------------------------------------- |
-| `status`          | Sí          | string       | Resultado de la llamada (`success` o `failed`).                 |
-| `reason`          | Condicional | string       | Solo si la llamada fue fallida. Motivo específico del fallo.    |
-| `attempts`        | No          | integer      | Número de intentos realizados si la llamada falló.              |
-| `conversation_id` | Sí          | string       | Identificador único de la llamada.                              |
-| `transcript_path` | Sí          | string (URI) | Ruta al archivo de transcripción en S3.                         |
-| `audio_path`      | Sí          | string (URI) | Ruta al archivo de audio en S3.                                 |
-| `detected_gender` | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`. |
+| Property          | Required    | Type         | Descripción                                                                                     |
+| ----------------- | ----------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| `status`          | Sí          | string       | Resultado general de la llamada. Es failed si hubo un error técnico o el contacto no respondió. Es success si la llamada fue completada, aunque pueden existir observaciones o problemas dentro del flujo.                                                 |
+| `reason`          | Condicional | enum string  | Catálogo de posibles problemas detectados en la llamada. Ver tabla de tipificación de motivos para los valores posibles. |
+| `attempts`        | No          | integer      | Número de intentos realizados si la llamada falló.                                              |
+| `conversation_id` | Sí          | string       | Identificador único de la llamada.                                                              |
+| `transcript_path` | Sí          | string (URI) | Ruta al archivo de transcripción en S3.                                                         |
+| `audio_path`      | Sí          | string (URI) | Ruta al archivo de audio en S3.                                                                 |
+| `detected_gender` | No          | string       | Género detectado en la llamada: `male`, `female` o `undefined`.                                 |
 
 #### Objeto anidado: `declared_data`
 

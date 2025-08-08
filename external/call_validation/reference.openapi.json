@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Registro de resultados de llamada - Asistente CX",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": {
       "$ref": "./docs/overview.md"
     },
@@ -27,6 +27,13 @@
         "$ref": "./docs/guide.md"
       },
       "x-traitTag": true
+    },
+    {
+      "name": "Tipificación de razones de fallo",
+      "description": {
+        "$ref": "./docs/reasons.md"
+      },
+      "x-traitTag": true
     }
   ],
   "x-tagGroups": [
@@ -34,7 +41,8 @@
       "name": "Guides",
       "description": "descripcion",
       "tags": [
-        "Resultados de llamada"
+        "Resultados de llamada",
+        "Tipificación de razones de fallo"
       ]
     },
     {
@@ -77,13 +85,22 @@
                   "reason": {
                     "type": "string",
                     "enum": [
-                      "Incompleta",
-                      "Intentos erroneos",
-                      "Llamada no contestada",
-                      "Numero equivocado",
-                      "No hay match respecto parametros iniciales"
+                      "F01",
+                      "F02",
+                      "F03",
+                      "F04",
+                      "F05",
+                      "F06",
+                      "F07",
+                      "F08",
+                      "F09",
+                      "F10",
+                      "F11",
+                      "F12",
+                      "F13",
+                      "F14o"
                     ],
-                    "description": "Motivo espec\u00edfico del fallo. Solo se requiere si el status es 'failed'."
+                    "description": "Catálogo de posibles problemas detectados en la llamada. Ver tabla de tipificación de motivos para los valores posibles."
                   },
                   "attempts": {
                     "type": "integer",
@@ -285,13 +302,22 @@
                   "reason": {
                     "type": "string",
                     "enum": [
-                      "Incompleta",
-                      "Intentos erroneos",
-                      "Llamada no contestada",
-                      "Numero equivocado",
-                      "No hay match respecto parametros iniciales"
+                      "F01",
+                      "F02",
+                      "F03",
+                      "F04",
+                      "F05",
+                      "F06",
+                      "F07",
+                      "F08",
+                      "F09",
+                      "F10",
+                      "F11",
+                      "F12",
+                      "F13",
+                      "F14"
                     ],
-                    "description": "Motivo del fallo, requerido si el status es 'failed'."
+                    "description": "Catálogo de posibles problemas detectados en la llamada. Ver tabla de tipificación de motivos para los valores posibles."
                   },
                   "attempts": {
                     "type": "integer",
