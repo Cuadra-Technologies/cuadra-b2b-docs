@@ -1,0 +1,926 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Dynamic Forms API – FE Integration (v1.0 staging)",
+        "version": "1.0.0-staging",
+        "x-logo": {
+            "url": "./assets/logo.svg"
+        },
+        "description": "This OpenAPI document describes the **front-end facing** Dynamic Forms endpoints.\n\n### Scope (v1.0 – staging)\n- Deployed to **staging** so FE can integrate early.\n- **ETag** is emitted for caching only; **If-Match** preconditions planned in v1.1.\n\n### Performance Characteristics\n- **Component Loading:** Single query (JOIN/LEFT JOIN) to fetch page components and values.\n- **No N+1 queries:** Entire page data retrieved in one database round-trip.\n- **Ordered Results:** Components sorted by `order_num` for consistent rendering."
+    },
+    "servers": [
+        {
+            "url": "http://b2b-api.cuadra.dev/",
+            "description": "Staging"
+        },
+        {
+            "url": "http://localhost:8000",
+            "description": "Local dev"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Integration guide",
+            "description": {
+                "$ref": "./docs/guide.md"
+            },
+            "x-traitTag": true
+        },
+        {
+            "name": "Integration Diagram",
+            "description": "This diagram shows how front‑end clients compose **two separate endpoints** into a single, atomic user action when the user clicks **Next** or **Submit**:\n\n1. **Save Values** — persist the page data. Navigate **only** if the save returns `status: ok`\n2. **Navigate** — move to the next page or finalize on submit.![FullFlow](assets/full_flow_v1.png)"
+        },
+        {
+            "name": "Forms Navigation",
+            "description": "Start/Next/Previous/Submit.\n\n![Navigate](assets/navigate_v1.png)"
+        },
+        {
+            "name": "Form Values",
+            "description": "Save page values.\n\n![Save Values](assets/save_values_v1.png)"
+        },
+        {
+            "name": "Render Page (helper)",
+            "description": "Render-only page fetch (does not mutate navigation).\n\n![Render Page](assets/render_page_v1.png)"
+        }
+    ],
+    "paths": {
+        "/forms/{process_id}/navigation": {
+            "post": {
+                "tags": [
+                    "Forms Navigation"
+                ],
+                "summary": "Navigate within a form (start, next, previous, submit)",
+                "description": "Orchestrates navigation and optionally returns target page render payload.\n\n**Notes:**\n- v1.0 exposes dependency metadata (`depends_on_component_id`, `rules`) only; FE computes visibility.\n- ETag is emitted for caching only (If-Match planned).",
+                "parameters": [
+                    {
+                        "name": "process_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Form process identifier"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NavigationRequest"
+                            },
+                            "examples": {
+                                "start": {
+                                    "summary": "Start with page payload",
+                                    "value": {
+                                        "action": "start",
+                                        "options": {
+                                            "include_page_data": true
+                                        },
+                                        "client_id": "d290f1ee-6c54-4b01-90e6-d701748f0851"
+                                    }
+                                },
+                                "next": {
+                                    "summary": "Next page",
+                                    "value": {
+                                        "action": "next",
+                                        "client_id": "d290f1ee-6c54-4b01-90e6-d701748f0851"
+                                    }
+                                },
+                                "submit": {
+                                    "summary": "Submit instance",
+                                    "value": {
+                                        "action": "submit",
+                                        "client_id": "d290f1ee-6c54-4b01-90e6-d701748f0851"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Navigation response with optional page payload",
+                        "headers": {
+                            "ETag": {
+                                "description": "Entity tag for client caching (partial support in v1.0)",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Navigation error (e.g., action not allowed)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "examples": {
+                                    "FN01": {
+                                        "summary": "Action not allowed",
+                                        "value": {
+                                            "type": "error",
+                                            "code": "FN01",
+                                            "message": "Action not allowed",
+                                            "http_status_code": 400
+                                        }
+                                    },
+                                    "FN02": {
+                                        "summary": "Validation required",
+                                        "value": {
+                                            "type": "error",
+                                            "code": "FN02",
+                                            "message": "Validation required",
+                                            "http_status_code": 400
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Unexpected error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "x-codeSamples": [
+                    {
+                        "lang": "bash",
+                        "label": "curl (start)",
+                        "source": "curl -s -X POST \"$SERVER/forms/123/navigation\" -H 'Authorization: Bearer $TOKEN' -H 'Content-Type: application/json' -d '{\"action\":\"start\",\"options\":{\"include_page_data\":true},\"client_id\":\"00000000-0000-0000-0000-000000000000\"}'"
+                    },
+                    {
+                        "lang": "bash",
+                        "label": "curl (next)",
+                        "source": "curl -s -X POST \"$SERVER/forms/123/navigation\" -H 'Authorization: Bearer $TOKEN' -H 'Content-Type: application/json' -d '{\"action\":\"next\",\"client_id\":\"00000000-0000-0000-0000-000000000000\"}'"
+                    }
+                ]
+            }
+        },
+        "/forms/{process_id}/instances/{instance_id}/pages/{page_key}/values": {
+            "post": {
+                "tags": [
+                    "Form Values"
+                ],
+                "summary": "Save values for the current page",
+                "description": "Persist component values mapped to canonical field IDs; marks page as complete on success.\n\n**Save-then-Navigate pattern:** FE should save first and navigate only on `status=ok`.",
+                "parameters": [
+                    {
+                        "name": "process_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Form process identifier"
+                    },
+                    {
+                        "name": "instance_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Form instance identifier"
+                    },
+                    {
+                        "name": "page_key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Page key (slug)"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SaveValuesRequest"
+                            },
+                            "examples": {
+                                "ok": {
+                                    "summary": "Save three fields",
+                                    "value": {
+                                        "client_id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+                                        "values": {
+                                            "2001": "John",
+                                            "2002": "Doe",
+                                            "2003": "john@email.com"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Save result (ok/invalid)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SaveValuesResponse"
+                                },
+                                "examples": {
+                                    "ok": {
+                                        "value": {
+                                            "result": {
+                                                "status": "ok",
+                                                "instance_version": 7,
+                                                "validation": {
+                                                    "fieldErrors": {},
+                                                    "pageErrors": []
+                                                },
+                                                "messages": []
+                                            }
+                                        }
+                                    },
+                                    "invalid": {
+                                        "value": {
+                                            "result": {
+                                                "status": "invalid",
+                                                "instance_version": 7,
+                                                "validation": {
+                                                    "fieldErrors": {
+                                                        "2001": "First Name is required"
+                                                    },
+                                                    "pageErrors": []
+                                                },
+                                                "messages": []
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid field values (schema/required)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "examples": {
+                                    "FV01": {
+                                        "value": {
+                                            "type": "error",
+                                            "code": "FV01",
+                                            "message": "Invalid field values",
+                                            "http_status_code": 400
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Page not found (process/page mismatch)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "examples": {
+                                    "FP01": {
+                                        "value": {
+                                            "type": "error",
+                                            "code": "FP01",
+                                            "message": "Page not found",
+                                            "http_status_code": 404
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Instance mismatch / immutable state",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "examples": {
+                                    "FV02": {
+                                        "value": {
+                                            "type": "error",
+                                            "code": "FV02",
+                                            "message": "Instance conflict",
+                                            "http_status_code": 409
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "x-codeSamples": [
+                    {
+                        "lang": "bash",
+                        "label": "curl",
+                        "source": "curl -s -X POST \"$SERVER/forms/123/instances/456/pages/personal_info/values\" -H 'Authorization: Bearer $TOKEN' -H 'Content-Type: application/json' -d '{\"client_id\":\"00000000-0000-0000-0000-000000000000\",\"values\":{\"2001\":\"John\",\"2002\":\"Doe\"}}'"
+                    }
+                ]
+            }
+        },
+        "/forms/{process_id}/pages/{page_key}": {
+            "post": {
+                "tags": [
+                    "Render Page (helper)"
+                ],
+                "summary": "Render page (no navigation mutation)",
+                "description": "Render a specific page (static config + current values). Typically used for preview/backoffice or hydration.",
+                "parameters": [
+                    {
+                        "name": "process_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Form process identifier"
+                    },
+                    {
+                        "name": "page_key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Page key (slug)"
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RenderPageRequest"
+                            },
+                            "examples": {
+                                "render": {
+                                    "value": {
+                                        "client_id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+                                        "options": {}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Page render payload",
+                        "headers": {
+                            "ETag": {
+                                "description": "Entity tag for client caching",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageRenderResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "parameters": {
+            "IfMatch": {
+                "name": "If-Match",
+                "in": "header",
+                "required": false,
+                "description": "Optional optimistic concurrency header (planned v1.1)",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "NavigationRequest": {
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": [
+                            "start",
+                            "next",
+                            "previous",
+                            "submit"
+                        ]
+                    },
+                    "options": {
+                        "type": "object",
+                        "properties": {
+                            "include_page_data": {
+                                "type": "boolean",
+                                "default": true
+                            },
+                            "force": {
+                                "type": "boolean",
+                                "default": false
+                            }
+                        },
+                        "additionalProperties": false
+                    },
+                    "client_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "Temporary; subject to change when auth is wired end-to-end."
+                    },
+                    "saved_values": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        },
+                        "description": "Reserved for future atomic save+navigate."
+                    }
+                },
+                "required": [
+                    "action",
+                    "client_id"
+                ],
+                "additionalProperties": false
+            },
+            "NavigationResponse": {
+                "type": "object",
+                "properties": {
+                    "navigation_info": {
+                        "type": "object",
+                        "properties": {
+                            "success": {
+                                "type": "boolean"
+                            },
+                            "action_performed": {
+                                "type": "string"
+                            },
+                            "from_page": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "to_page": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "method": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "success",
+                            "action_performed"
+                        ]
+                    },
+                    "page": {
+                        "$ref": "#/components/schemas/Page"
+                    },
+                    "navigation_context": {
+                        "$ref": "#/components/schemas/NavigationContext"
+                    },
+                    "instance": {
+                        "$ref": "#/components/schemas/Instance"
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    },
+                    "submission": {
+                        "type": [
+                            "object",
+                            "null"
+                        ],
+                        "description": "Only present for submit"
+                    }
+                }
+            },
+            "SaveValuesRequest": {
+                "type": "object",
+                "properties": {
+                    "client_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "values": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "oneOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "number"
+                                },
+                                {
+                                    "type": "boolean"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "client_id",
+                    "values"
+                ],
+                "additionalProperties": false
+            },
+            "SaveValuesResponse": {
+                "type": "object",
+                "properties": {
+                    "result": {
+                        "type": "object",
+                        "properties": {
+                            "status": {
+                                "type": "string",
+                                "enum": [
+                                    "ok",
+                                    "invalid"
+                                ]
+                            },
+                            "instance_version": {
+                                "type": "integer"
+                            },
+                            "validation": {
+                                "type": "object",
+                                "properties": {
+                                    "fieldErrors": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "pageErrors": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "messages": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": [
+                            "status"
+                        ]
+                    }
+                }
+            },
+            "RenderPageRequest": {
+                "type": "object",
+                "properties": {
+                    "client_id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "options": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                },
+                "additionalProperties": false
+            },
+            "PageRenderResponse": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "$ref": "#/components/schemas/Page"
+                    },
+                    "navigation_context": {
+                        "$ref": "#/components/schemas/NavigationContext"
+                    },
+                    "instance": {
+                        "$ref": "#/components/schemas/Instance"
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/Metadata"
+                    }
+                }
+            },
+            "Page": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "integer"
+                            }
+                        ]
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "components": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Component"
+                        }
+                    },
+                    "metadata": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "key",
+                    "components"
+                ]
+            },
+            "Component": {
+                "type": "object",
+                "properties": {
+                    "component_id": {
+                        "type": "integer"
+                    },
+                    "component_type": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "is_required": {
+                        "type": "boolean"
+                    },
+                    "ui_props": {
+                        "type": "object"
+                    },
+                    "validations": {
+                        "type": "object"
+                    },
+                    "value": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "depends_on_component_id": {
+                        "oneOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "rules": {
+                        "type": "object"
+                    },
+                    "backoffice_only": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "component_id",
+                    "component_type",
+                    "label"
+                ]
+            },
+            "NavigationContext": {
+                "type": "object",
+                "properties": {
+                    "actions": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "$ref": "#/components/schemas/NavAction"
+                            },
+                            "previous": {
+                                "$ref": "#/components/schemas/NavAction"
+                            },
+                            "submit": {
+                                "$ref": "#/components/schemas/NavAction"
+                            }
+                        }
+                    },
+                    "breadcrumb": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "key": {
+                                    "type": "string"
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "accessible": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "NavAction": {
+                "type": "object",
+                "properties": {
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "target_page": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "validation_required": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "Instance": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "in_progress",
+                            "submitted",
+                            "..."
+                        ]
+                    },
+                    "current_page": {
+                        "type": "string"
+                    },
+                    "progress": {
+                        "type": "object",
+                        "properties": {
+                            "percentage": {
+                                "type": "number"
+                            },
+                            "completed_pages": {
+                                "type": "integer"
+                            },
+                            "total_pages": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "timestamps": {
+                        "type": "object",
+                        "properties": {
+                            "updated_at": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "submitted_at": {
+                                "oneOf": [
+                                    {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    {
+                                        "type": "null"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "Metadata": {
+                "type": "object",
+                "properties": {
+                    "etag": {
+                        "type": "string"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "performance": {
+                        "type": "object",
+                        "properties": {
+                            "processing_time_ms": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "error"
+                    },
+                    "code": {
+                        "type": "string",
+                        "examples": [
+                            "FN01",
+                            "FN02",
+                            "FV01",
+                            "FV02",
+                            "FP01"
+                        ]
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "http_status_code": {
+                        "type": "integer"
+                    },
+                    "event_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "type",
+                    "code",
+                    "message",
+                    "http_status_code"
+                ]
+            }
+        }
+    }
+}

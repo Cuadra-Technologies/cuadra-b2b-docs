@@ -3,6 +3,10 @@ external/**/public/docs/
 external/**/artifacts/
 external/**/docs_bundle.zip
 
+internal/**/public/docs/
+internal/**/artifacts/
+internal/**/docs_bundle.zip
+
 # Allow committed READMEs
 !external/**/public/README.md
 !external/**/README.md
